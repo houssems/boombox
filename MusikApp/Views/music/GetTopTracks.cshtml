@@ -1,0 +1,47 @@
+﻿<div class="row row-sm padder-lg " id="toptrackelement">
+   
+    
+    <h2 class="font-thin m-b">Top tracks   
+        <span class="musicbar animate inline m-l-sm" style="width:20px;height:20px">
+            <span class="bar1 a1 bg-primary lter"></span>
+            <span class="bar2 a2 bg-info lt"></span>
+            <span class="bar3 a3 bg-success"></span>
+            <span class="bar4 a4 bg-warning dk"></span>
+            <span class="bar5 a5 bg-danger dker"></span>
+        </span>
+    </h2>
+<br>
+
+    <script>
+        var values;
+        try {
+            values = JSON.parse(@Html.Raw(Json.Encode(ViewBag.top)));
+            console.log(values);
+            for (var i = 0; i < values.tracks.track.length; i++) {
+                value = values.tracks.track[i];
+                var image = "/images/no-cover.png";
+                if (value.image !== undefined)
+                    image = value.image[value.image.length - 1].text;
+                
+                var info = "<div class=\"col-xs-6 col-sm-4 col-md-3 col-lg-2\">" +
+                    "<div class=\"thumbnail\" style=\"background:url('" + image + "') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;\">" +
+                    "<div style=\"height:180px;overflow:hidden;\"></div>" +
+                    "<div class=\"caption\">" +
+                    "<h4 class=\"truncate\">" + value.name + "</h4>" +
+                    "<p class=\"artistInfo truncate\" onclick=\"getArtistInfo('" + value.artist.name + "');\" title=\"Get\" artist info>" + value.artist.name + "</p>" +
+                    "<p>" +
+                    "<button class=\"btn btn-primary\" style=\"width:45%\" title=\"Add to Playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','"+image+"');\"><i class=\"fa fa-plus\"></i></button>"+
+                    "<button class=\"btn btn-primary pull-right\" style=\"width:45%\" title=\"Add to Playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','"+image+"',true);\"><i class=\"fa fa-play\"></i></button>" +
+                    "</p></div></div></div>";
+                   
+                $("#toptrackelement").append(info);
+            }
+        } catch (exp) {
+            console.error("Parsing error:", exp);
+        }
+    </script>
+    <script>
+        $(".nav-sidebar li").removeClass("active");
+        $("#topTrack").addClass('active');
+    </script>
+</div>

@@ -1,0 +1,17 @@
+﻿<div class="row">
+    <div class="jumbotron" style="text-align: center; padding-top: 10px; padding-bottom: 10px" id="flagLyrics">
+
+        <h1>Lyrics</h1>
+        <h3><strong id="tstrong"></strong>
+        </h3>
+
+
+        <p id="pdata"></p>
+    </div>
+</div>
+
+<script>
+    $("#tstrong").append(@ViewBag.title);
+    $("#pdata").append(@ViewBag.lyric);
+</script>
+

@@ -1,0 +1,150 @@
+﻿<script>
+    var x = 0;
+    var toptracks;
+    var artist;
+    var song;
+    var lyrics;
+    try {
+        toptracks = JSON.parse(@Html.Raw(Json.Encode(ViewBag.toptracks)));
+        artist = JSON.parse(@Html.Raw(Json.Encode(ViewBag.artist)));
+        lyrics = JSON.parse(@Html.Raw(Json.Encode(ViewBag.lyrics)));
+        song = JSON.parse(@Html.Raw(Json.Encode(ViewBag.song)));
+    } catch (exp) {
+        console.error("Parsing error:", exp);
+    }
+    var img;
+    var top;
+    console.log(song);
+    if (song.track.album !== undefined)
+        img = song.track.album.image[song.track.album.image.length - 1].text;
+    else
+        img = "/images/no-cover.png";
+
+    lyrics.artist = lyrics.artist.replace("+", " ");
+    lyrics.track = lyrics.track.replace("+", " ");
+    var info = "<div class=\"row\">" +
+        "<div class=\"col-md-3\">" +
+        "<img class=\"img-responsive thumbnail\" style=\"width:100%;\" src=\"" + img + "\">" +
+        "<button class=\"btn btn-default\" style=\"width:100%;margin-bottom:5px\" onclick=\"start_radio('" + lyrics.track + "','" + lyrics.artist +
+        "','" + img + "')\"><i class=\"fa fa-rss\"></i> Start Radio</button>" +
+        "<div class=\"btn-group\" style=\"width:100%;margin-bottom:5px\">" +
+        "<button type=\"button\" class=\"btn btn-default  dropdown-toggle\" style=\"width:100%\"  data-toggle=\"dropdown\">" +
+        "<i class=\"fa fa-share-square\"></i>Share" +
+        "<span class=\"caret\"></span>" +
+        "</button>" +
+        "<ul class=\"dropdown-menu\">" +
+        "<li><a href=\"#\" onClick=\"custom_share('fb','?artist=" + lyrics.artist + "&track=" + lyrics.track + "');return false;\"><i class=\"fa fa-facebook-square\"></i> Facebook</a></li>" +
+        "<li><a href=\"#\" onClick=\"custom_share('tw','?artist=" + lyrics.artist + "&track=" + lyrics.track + "');return false;\"><i class=\"fa fa-twitter\"></i> Twitter</a></li>" +
+        "<li><a href=\"#\" onClick=\"custom_share('gp','?artist=" + lyrics.artist + "&track=" + lyrics.track + "');return false;\"><i class=\"fa fa-google-plus-square\"></i> Google Plus</a></li>" +
+        "<li><a href=\"#\" onClick=\"custom_share('c','?artist=" + lyrics.artist + "&track=" + lyrics.track + "');return false;\"><i class=\"fa fa-link\"></i> Copy Link</a></li>" +
+        "</ul>" +
+        "</div>" +
+        "<button class=\"btn btn-primary\" style=\"width:100%;margin-bottom:5px\" title=\"Play\" onclick=\"addPlayList('" + lyrics.track + "','" + lyrics.artist + "','" + img + "',true);\"><i class=\"fa fa-play\"></i> Play</button>" +
+        "<button  onClick=\"buyOnAmazon('" + lyrics.track + " - " + lyrics.artist + "')\" class=\"btn btn-warning\" style=\"width:100%\" title=\"Buy it now\"><i class=\"fa fa-shopping-cart\"></i> Buy it now</button>" +
+        "</div>";
+
+    info += "<div class=\"col-md-9\">" +
+        "<div class=\"tabbable\">" +
+        "<ul class=\"nav nav-tabs\" id=\"myTab\">" +
+        "<li class=\"active\"><a href=\"#lyricTab\" data-toggle=\"tab\">Lyrics</a></li>" +
+        "<li><a href=\"#artistTab\" data-toggle=\"tab\">" + lyrics.artist + "</a></li>" +
+        "<li><a href=\"#topTracks\" data-toggle=\"tab\">Top Tracks</a></li>" +
+        "<li><a href=\"#similarTab\" data-toggle=\"tab\">Related Artist</a></li>" +
+        "</ul>" +
+        "<div class=\"tab-content\">" +
+        "<div class=\"tab-pane\" id=\"artistTab\">" +
+        "<h2>" + lyrics.track + "</h2>" +
+        "<span  style=\"cursor:pointer\" title=\"Album Info\" onclick=\"getTracksAlbum('" + song.track.album.title + "','" + lyrics.artist + "');\"><i class=\"fa fa-folder-o\"></i> " + song.track.album.title + "</span>" +
+        "<div class=\"clearfix\"></div>" +
+        "<br>";
+    for (var k = 0; k < song.track.toptags.tag.length; k++) {
+        var tag = song.track.toptags.tag[k];
+
+        info += "<span onClick=\"getTopTags('" + tag.name + "\" class=\"label label-primary artistInfo\">" + tag.name + "</span>";
+    }
+
+    info += "<div class=\"clearfix\"></div><br>";
+    if (song.track.wiki !== undefined)
+        info += song.track.wiki.summary.replace(/(<([^>]+)>)/ig, "");
+    info += "<br><br>" +
+        artist.artist.bio.content.replace(/(<([^>]+)>)/ig, "") +
+        "<div class=\"col-md-12\">" +
+        "<br>" +
+        "<br>" +
+        "</div>" +
+        "<br>" +
+        "<div class=\"clearfix\"></div>" +
+        "<br>" +
+        "</div>" +
+        "<div class=\"tab-pane active\" id=\"lyricTab\" style=\"text-align:center\">" +
+        "<strong><i class=\"fa fa-music\"></i> " + lyrics.track + " <i class=\"fa fa-music\"></i></strong><br>" +
+        "<strong><small>" + lyrics.artist + "</small></strong><br>" + lyrics.lyric +
+        "</div>" +
+        "<div class=\"tab-pane\" id=\"similarTab\" style=\"text-align:center\">" +
+        "<div class=\"row\">";
+    var xart = 0;
+    for (var k = 0; k < artist.artist.similar.artist.length; k++) {
+        value = artist.artist.similar.artist[k];
+        if (value.image !== undefined)
+            img = value.image[value.image.length-1].text;
+        else
+            img = "/images/no-cover.png";
+        if (value.name != "" && xart < 4) {
+            xart++;
+            var txt = "<div class=\"col-xs-12 col-md-3 col-lg-3\">" +
+                "<div class=\"thumbnail\" style=\"background:url('" + img + "') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;\">" +
+                "<div style=\"height:180px;overflow:hidden;\">" +
+                "</div>" +
+                "<div class=\"caption\">" +
+                "<h4 class=\"nowrap\">"+value.name+"</h4>" +
+                "<p class=\"nowrap\"><a href=\"/artist/" + value.name + "\"  onClick=\"getArtistInfo('" + value.name + "');\" class=\"btn btn-primary removehref\" style=\"width:100%\" >Artist info</a></p>" +
+                "</div>" +
+                "</div>" +
+                "</div>";
+            info += txt;
+
+        }
+    }
+    info += "</div>" + "</div><div class=\"tab-pane\" id=\"topTracks\"><div class=\"list-group\">";
+
+    //console.log(artist.artist.tags.tag);
+    xart = 0;
+    for (var k = 0; k < toptracks.tracks.track.length; k++) {
+        value = toptracks.tracks.track[k];
+        if (value.image !== undefined)
+            img = value.image[value.image.length - 1].text;
+        else
+            img = "/images/no-cover.png";
+        if (value.name != "" && xart < 4) {
+            xart++;
+            var txt = "<a href=\"/?artist=" + value.artist.name + "&track=" + value.name + "\" onClick=\"return false;\" class=\"list-group-item removehref\"><i class=\"fa fa-music\"></i> " + value.name +
+                "<div class=\"btn-group pull-right\">" +
+                "<button class=\"btn btn-warning btn-xs\"   onclick=\"getSongInfo('" + value.artist.name + "','" + value.name + "');\"><i class=\"fa fa-info-circle\"></i></button>" +
+                "<button class=\"btn btn-primary btn-xs addTrg\"  title=\"Add to Playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','" + img + "');\"><i class=\"fa fa-plus\"></i></button>" +
+                "<button class=\"btn btn-danger btn-xs\"  title=\"Add to Playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','" + img + "',true);\"><i class=\"fa fa-play\"></i></button>" +
+                "<button  onClick=\"buyOnAmazon('" + value.name + " - " + value.artist.name + "')\" class=\"btn btn-info btn-xs\" title=\"buy on amazon\"><i class=\"fa fa-shopping-cart\"></i></button>" +
+                "</div>" +
+                "</a>";
+            info += txt;
+
+        }
+    }
+    info += "</div></div></div>	 </div></div></div><br><br>";
+    $("#data").append(info);
+</script>
+
+<div id="data"></div>
+<script>
+    $(window).load(function() {
+        
+            $(".removehref").attr("href","#");
+    });
+    try{
+        $(".removehref").attr("href","#");
+    }
+    catch(e)
+    {
+
+    }
+
+</script>

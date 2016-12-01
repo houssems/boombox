@@ -1,0 +1,53 @@
+﻿<script>
+    var x = 0;
+    var values;
+    try {
+        values = JSON.parse(@Html.Raw(Json.Encode(ViewBag.top)));
+        } catch (exp) {
+            console.error("Parsing error:", exp);
+        }
+
+        //alert(values.results.artistmatches.artist[0].name);
+        //ar values = toJSON(Json.Encode(Model.Data));
+        var len = values["artists"]["artist"].length;
+        for (var i = 0; i < len; i++) {
+            var value = values["artists"]["artist"][i];
+            var image = value["image"][4]["text"];
+            if (image == "")
+                image = value["image"][3]["text"];
+            if (image == "")
+                image = "/images/no-cover.png";
+            console.log("image", image);
+            //    image = value["image"][3]["text"];
+
+            var txt = "<div class=\"col-xs-12 col-md-4 col-lg-3\">" +
+                "<div class=\"thumbnail\" style=\"background:url(\'" + image + "\') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;\">" +
+                "<div style=\"height:120px;overflow:hidden;\">" +
+                "</div>" +
+                "<div class=\"caption\">" +
+                "<h4 class=\"nowrap\">" +value.name + "</h4>"+
+                "<p class=\"nowrap\">" +
+                "<button onClick=\"getArtistInfo(\'" + value.name + "\');\" class=\"btn btn-primary\" style=\"width:100%\">Arstist Info</button>"  +
+                "</p>" +
+                "</div>" +
+                "</div>" +
+                "</div>";
+            $("#data").append(txt);
+
+
+        }
+</script>
+
+
+
+<div class="page-header">
+    <h1>Top Artist</h1>
+</div>
+<div class="row" id ="data">
+
+</div>
+<script>
+    $(".nav-sidebar li").removeClass("active");
+    $("#topArtist").addClass('active');
+</script>
+

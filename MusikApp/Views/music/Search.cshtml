@@ -1,0 +1,94 @@
+﻿<div id="search-artist">
+    <div id="circleG">
+        <div id="circleG_1" class="circleG"></div>
+        <div id="circleG_2" class="circleG"></div>
+        <div id="circleG_3" class="circleG"></div>
+    </div>
+    <script type="text/javascript">
+        try {
+            search_artist('@ViewBag.query');
+        } catch (e) {
+            $(function () {
+                search_artist('@ViewBag.query');
+            });
+        }
+
+    </script>
+</div>
+
+<div class="clearfix"></div>
+
+
+<div class="page-header">
+  <h1> @ViewBag.query <div class="btn-group pull-right">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+          <i class="fa fa-share-square"></i>Share
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="#" onClick=" custom_share('fb', '/search/@ViewBag.query');return false;"><i class="fa fa-facebook-square"></i> Facebook</a></li>                              
+                <li><a href="#" onClick="custom_share('tw','/search/@ViewBag.query');return false;"><i class="fa fa-twitter"></i> Twitter</a></li>                              
+                <li><a href="#" onClick="custom_share('gp','/search/@ViewBag.query');return false;"><i class="fa fa-google-plus-square"></i> Google Plus</a></li>   
+                <li><a href="#" onClick="custom_share('c','/search/@ViewBag.query');return false;"><i class="fa fa-link"></i> Copy Link</a></li>   
+        </ul>
+      </div></h1>
+</div>
+<div class="row" id="data">
+    
+</div>
+
+
+<script>
+
+
+    var x = 0;
+    var values;
+    try {
+        values = JSON.parse(@Html.Raw(Json.Encode(ViewBag.search)));
+    } catch (exp) {
+        console.error("Parsing error:", exp);
+    }
+    console.log(values);
+        //alert(values.results.artistmatches.artist[0].name);
+        //ar values = toJSON(Json.Encode(Model.Data));
+    var len = values["results"]["trackmatches"]["track"].length;
+    if (len == 0) {
+        $(".row").append('<div class="alert alert-info"><strong>@ViewBag.query</strong>  No Found!</div>');
+    } else {
+        var value = values["results"]["trackmatches"]["track"];
+        for (var i = 0; i < len; i++) {
+            var image;
+            if (value[i].image !== undefined)
+                image = value[i]["image"][3]["text"];
+            else {
+                image = "/images/no-cover.png";
+            }
+            if (value[i].name != "") {
+                var txt = '<div class="col-xs-6 col-md-6 col-lg-4">' +
+                    '<div class="jumbotron">' +
+                    '<div class="row">' +
+                    '<div class="col-md-4" >' +
+                    '<div style="border-radius:50%;background:url(\'' + image + '\') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;">' +
+                    '<img  style="width:100%;max-height:100%;;max-widht:100%;" src="/images/bg-cover1.png">' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-md-8">' +
+                    '<div class="pull-right" style="margin:10px">' +
+                    '<button class="btn btn-primary btn-xs" title="add" onclick="addPlayList(\'' + value[i].name + '\',\'' + value[i].artist + '\',\'' + image + '\');"><i class="fa fa-plus"></i></button>' +
+                    '<button class="btn btn-primary btn-xs" title="playnow" onclick="addPlayList(\'' + value[i].name + '\',\'' + value[i].artist + '\',\'' + image + '\',true);"><i class="fa fa-play"></i></button>' +
+                    '<button class="btn btn-warning btn-xs" title="start radio" onclick="start_radio(\'' + value[i].name + '\',\'' + value[i].artist + '\',\'' + image + '\')"><i class="fa fa-rss"></i></button>' +
+                    '<button  onClick="buyOnAmazon(\'' + value[i].name + " - " + value[i].artist + '\')" class="btn btn-info btn-xs" title="buy"><i class="fa fa-shopping-cart"></i></button><?php' +
+                    '</div>' +
+                    '<h4 class="nowrap" title="' + value[i].name + '"><a class="link removehref" href="/?artist=' + value[i].artist + '&track=' + value[i].track + '" onClick="getSongInfo(' + value[i].artist + ',' + value[i].name + ')">' + value[i].name + '</h4>' +
+                    '<a class="link removehref" href="' + value[i].artist + '" class="artistInfo nowrap" onClick="getArtistInfo(\'' + value[i].artist + '\');" title="get info ' + value[i].artist + '">' + value[i].artist + '</a>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                $("#data").append(txt);
+            }
+        }
+    }
+
+    $(".removehref").attr("href", "#");
+</script>

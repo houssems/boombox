@@ -1,0 +1,49 @@
+﻿
+
+<div class="row" id="data">
+
+</div>
+
+<script>
+    $(".removehref").attr("href", "#");
+</script>
+<script>
+
+
+    var x = 0;
+    var values;
+    try {
+        values = JSON.parse(@Html.Raw(Json.Encode(ViewBag.data)));
+    } catch (exp) {
+        console.error("Parsing error:", exp); 
+    }
+        
+    //alert(values.results.artistmatches.artist[0].name);
+    //ar values = toJSON(Json.Encode(Model.Data));
+    var len = values["results"]["artistmatches"]["artist"].length;
+    for (var i = 0; i < len; i++) {
+        var value = values["results"]["artistmatches"]["artist"][i];
+        var image = value["image"][3]["text"];
+        console.log("image", image);
+        //    image = value["image"][3]["text"];
+        if ((value["name"] != "") && (x < 4) && (image != "")) {
+            x++;
+            var txt = "<div class=\"col-xs-12 col-md-3\">" +
+                "<div class=\"thumbnail\" style=\"background:url('" + image + "') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;\">" +
+                "<div style=\"height:180px;overflow:hidden;\"></div>" +
+                "<div class=\"caption\">" +
+                "<h4 class=\"nowrap\">" + value["name"] + "</h4>" +
+                '<p class="nowrap"><a  onClick="getArtistInfo(\'' + value["name"] + '\');" class="btn btn-primary removehref" style="width:100%" href="#">Artist info</a></p>' +
+                "</div>" +
+                "</div>" +
+                "</div>";
+            $("#data").append(txt);
+        }
+
+    }
+    if (x == 0) {
+        $("#search-artist").html("");
+    }
+    
+    
+</script>

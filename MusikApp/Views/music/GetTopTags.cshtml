@@ -1,0 +1,79 @@
+﻿<script>
+    var ch = @Html.Raw(Json.Encode(ViewBag.top));
+    ch = JSON.stringify(ch.replace("\n",""));
+    var tops;
+    try {
+        tops = JSON.parse(ch);
+    } catch (exp) {
+        console.log("Parsing error:", exp); 
+    }
+
+    tops = JSON.parse(tops);
+    console.log(tops.toptracks);
+    
+    var itemRand = Math.floor((Math.random() * tops["toptracks"]["track"].length) - 1);
+    var img = "/images/no-cover.png";
+    if (tops.toptracks.track[itemRand].image !== undefined) {
+        img = tops["toptracks"]["track"][itemRand]["image"][tops["toptracks"]["track"][itemRand]["image"].length -1]["text"];
+    }
+    
+
+    function addslashes(str) {
+        str = str.replace(/\\/g, '\\\\');
+        str = str.replace(/\'/g, '\\\'');
+        str = str.replace(/\"/g, '\\"');
+        str = str.replace(/\0/g, '\\0');
+        return str;
+    }
+    function start_radios() {
+        start_radio(top["tracks"]["track"][itemRand].name, top["tracks"]["track"][itemRand]["artist"].name, img);
+    }
+</script>
+
+<div class="page-header">
+    <h1>@ViewBag.title
+    <div class="btn-group pull-right">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+          <i class="fa fa-share-square"></i> share
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a href="#" onClick="custom_share('fb','/tag/@ViewBag.title');return false;"><i class="fa fa-facebook-square"></i> Facebook</a></li>                              
+                <li><a href="#" onClick="custom_share('tw','/tag/@ViewBag.title');return false;"><i class="fa fa-twitter"></i> Twitter</a></li>                              
+                <li><a href="#" onClick="custom_share('gp','/tag/@ViewBag.title');return false;"><i class="fa fa-google-plus-square"></i> Google Plus</a></li>   
+                <li><a href="#" onClick="custom_share('c','/tag/@ViewBag.title');return false;"><i class="fa fa-link"></i> Copy Link</a></li>   
+        </ul>
+      </div>
+    <button class="btn btn-warning pull-right" onclick=" start_radios()"><i class="fa fa-rss"></i> start radio</button></h1>
+    <div class="row" id="tagdata">
+        
+    </div>
+</div>
+<script>
+    $(".removehref").attr("href","#");
+</script>
+<script>
+    var info ="";
+    for (var i = 0; i < tops.toptracks.track.length; i++) {
+        var value = tops.toptracks.track[i];
+        var imgs;
+        if (value.image !== undefined)
+            imgs = value.image[value.image.length - 1].text;
+        else
+            imgs = "/images/no-cover.png";
+        console.log(imgs);
+        var txt = "<div class=\"col-xs-12 col-md-3 col-lg-3\">" +
+            "<div class=\"thumbnail\" style=\"background:url('" + imgs + "') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;\">" +
+            "<div style=\"height:180px;overflow:hidden;\">" +
+            "</div>" +
+            "<div class=\"caption\">" +
+            "<h4 class=\"truncate\">" + value.name + "</h4>" +
+            "<a href=\"/artist/" + value.artist.name + "\" class=\"artistInfo removehref truncate\" onClick=\"getArtistInfo('" + value.artist.name + "');\" title=\"Artist Info\">" + value.artist.name + "</a>" +
+            "<p>" +
+            "<button class=\"btn btn-primary\" style=\"width:45%\" title=\"Add to Playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','" + imgs + "');\"><i class=\"fa fa-plus\"></i></button>" +
+            "<button class=\"btn btn-primary pull-right\" style=\"width:45%\" title=\"Add to playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','" + imgs + "',true);\"><i class=\"fa fa-play\"></i></button>" +
+            "</p></div></div></div>";
+        info += txt;
+    }
+    $("#tagdata").append(info);
+</script>

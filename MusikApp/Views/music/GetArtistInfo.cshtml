@@ -1,0 +1,154 @@
+﻿<script>
+    var x = 0;
+    var values;
+    try {
+        values = JSON.parse(@Html.Raw(Json.Encode(ViewBag.toptracks)));
+        artist = JSON.parse(@Html.Raw(Json.Encode(ViewBag.artist)));
+    } catch (exp) {
+        console.error("Parsing error:", exp);
+    }
+    var img;
+    var top;
+    
+    var len = values["tracks"]["track"].length;
+    var itemRand = Math.floor((Math.random() * len));
+    if (len == 0) {
+        var txt = '<div class="alert alert-info"><strong>artist!</strong>  No Found!</div>';
+    }
+    if (len == 1) {
+        if (values.tracks.track.image !== undefined)
+            img = values["tracks"]["track"]["image"][values.tracks.track.image.length-1].text;
+        top = values["tracks"]["track"];
+    } else {
+        if (values.tracks.track[itemRand].image !== undefined) {
+            console.log(values.tracks.track[itemRand].image.length);
+            console.log(values.tracks.track[itemRand].image);
+            img = values.tracks.track[itemRand].image[values.tracks.track[itemRand].image.length - 1].text;
+        }
+            
+        top = values["tracks"]["track"][itemRand];
+    }
+    if (img == "")
+        img = "/images/no-cover.png";
+
+
+    if (len > 0) {
+        var bio = artist.artist.bio.content;
+        bio = bio.replace("<a", "<span");
+        bio = bio.replace("</a", "</span");
+
+        var info = "<div class=\"row\">" +
+            "<div class=\"col-md-3\">" +
+            "<img class=\"img-responsive thumbnail\" style=\"width:100%;\" src=\"" + artist.artist.image[3].text + "\">" +
+            "</div>" +
+            "<div class=\"col-md-9\">" +
+            "<h2>" + artist.artist.name + "</h2>" +
+            "<p>" + bio + "</p>";
+
+        //console.log(artist.artist.tags.tag);
+
+        for (var k = 0; k<artist.artist.tags.tag.length;k++) {
+            var tag = artist.artist.tags.tag[k];
+            
+            info+="<a href=\"/tag/" + tag.name + "\" onClick=\"getTopTags('" + tag.name + "');\" class=\"label label-primary artistInfo removehref\">" + tag.name + "</a>";
+        }
+        info +="<div class=\"clearfix\"></div>" +
+            "<br>" +
+            "<button class=\"btn btn-default\" onclick=\"start_radio('" + top.name + "','" + artist.artist.name + "','" + img + "')\"><i class=\"fa fa-rss\"></i> Start Radio</button>" +
+            "<button class=\"btn btn-default\" onclick=\"getAlbums('" + artist.artist.name + "')\"><i class=\"fa fa-folder-o\"></i>Label Albums</button>" +
+            "<button class=\"btn btn-default\" onclick=\"getEvents('" + artist.artist.name + "')\"><i class=\"fa fa-bullhorn\"></i> Events</button>" +
+            "<div class=\"btn-group\">" +
+            "<button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\">" +
+            "<i class=\"fa fa-share-square\"></i> Share" +
+            "<span class=\"caret\"></span>" +
+            "</button>" +
+            "<ul class=\"dropdown-menu\">" +
+            "<li><a href=\"#\" onClick=\"custom_share('fb','\"/artist/\"" + artist.artist.name + "');return false;\"><i class=\"fa fa-facebook-square\"></i> Facebook</a></li>" +
+            "<li><a href=\"#\" onClick=\"custom_share('tw','\"/artist/\"" + artist.artist.name + "');return false;\"><i class=\"fa fa-twitter\"></i> Twitter</a></li>" +
+            "<li><a href=\"#\" onClick=\"custom_share('gp','\"/artist/\"" + artist.artist.name + "');return false;\"><i class=\"fa fa-google-plus-square\"></i> Google Plus</a></li>" +
+            "<li><a href=\"#\" onClick=\"custom_share('c',''\"/artist/\"" + artist.artist.name + "');return false;\"><i class=\"fa fa-link\"></i> Copy Link</a></li>" +
+            "</ul>" +
+            "</div>" +
+            "<br>" +
+            "<br>" +
+            "<div class=\"col-md-12\">" +
+            "</div>" +
+            "</div>" +
+            "</div>";
+
+        info += "<div class=\"page-header\">" +
+            "<h1>Related Artist</h1>" +
+            "</div>";
+        var taille = artist["artist"]["similar"]["artist"].length;
+        for (var i = 0; i < 5; i++) {
+            var value = artist["artist"]["similar"]["artist"][i];
+            var image = value["image"][3]["text"];
+            
+            //    image = value["image"][3]["text"];
+            if ((value["name"] != "") && (x < 4) && (image != "")) {
+                x++;
+                var txt = "<div class=\"col-xs-12 col-md-3 col-lg-3\">" +
+                    "<div class=\"thumbnail\" style=\"background:url('" + image + "') no-repeat top center; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover;  background-size: cover;\">" +
+                    "<div style=\"height:180px;overflow:hidden;\"></div>" +
+                    "<div class=\"caption\">" +
+                    "<h4 class=\"nowrap\">" + value["name"] + "</h4>" +
+                    '<p class="nowrap"><a  onClick="getArtistInfo(\'' + value["name"] + '\');" class="btn btn-primary removehref" style="width:100%" href="/artist/' + value["name"] + '">Artist info</a></p>' +
+                    "</div>" +
+                    "</div>" +
+                    "</div>";
+                info +=txt;
+            }
+        }
+        info +="<div class=\"page-header\">" +
+            "<h1>Top Tracks <button class=\"btn btn-success pull-right\" onclick=\"addAlltoPlaylist()\"><i class=\"fa fa-plus\"></i> Add All</button></h1>" +
+            "</div>";
+
+        //listes des musics
+
+        info +="<div class=\"row\">" +
+            "<div class=\"list-group\">";
+        
+        for (var j = 0; j < len; j++) {
+            var value = values["tracks"]["track"][j];
+            
+            if (typeof value.image === 'undefined')
+                trackimg = "/images/no-cover.png";
+            else {
+                var lenimg = value.image.length;
+                lenimg--;
+                trackimg = value.image[lenimg].text;
+            }
+            
+            
+            
+                
+            
+
+            console.log(trackimg);
+            
+            if (value.name != "") {
+                var txt = "<a href=\"?artist=" + value.artist.name + "&track=" + value.name + "')\" onClick=\"return false;\" class=\"list-group-item removehref\"><i class=\"fa fa-music\"></i> " + value.name +
+                    "<div class=\"btn-group pull-right\">" +
+                    "<button class=\"btn btn-warning btn-xs\"   onclick=\"getSongInfo('" + value.artist.name + "','" + value.name + "');\"><i class=\"fa fa-info-circle\"></i></button>" +
+                    "<button class=\"btn btn-primary btn-xs addTrg\"  title=\"Add to Playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','" + trackimg + "');\"><i class=\"fa fa-plus\"></i></button>" +
+                    "<button class=\"btn btn-danger btn-xs\"  title=\"add playlist\" onclick=\"addPlayList('" + value.name + "','" + value.artist.name + "','" + trackimg + "',true);\"><i class=\"fa fa-play\"></i></button>" +
+                    "<button  onClick=\"buyOnAmazon('" + value.name + " - " + value.artist.name + "')\" class=\"btn btn-info btn-xs\" title=\"buy\"><i class=\"fa fa-shopping-cart\"></i></button>" +
+                    "</div>" +
+                    "</a>";
+                info +=txt;
+            }
+        }
+
+        info +="</div></div>";
+        $("#data").append(info);
+    }
+</script>
+<div id="data">
+    
+</div>
+<script>
+    $(".removehref").attr("href", "#");
+    var stateObj = { foo: "bar" };
+    history.pushState(stateObj, "", "artist/"+artist.artist.name);
+
+</script>

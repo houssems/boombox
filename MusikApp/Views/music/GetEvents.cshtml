@@ -1,0 +1,80 @@
+﻿
+  <script>
+      var map;
+
+      function initialize() {
+          var mapOptions = {
+              zoom: 8,
+              center: new google.maps.LatLng(-34.397, 150.644)
+          };
+          map = new google.maps.Map(document.getElementById('map-canvas'),
+              mapOptions);
+
+          var myLatlng = new google.maps.LatLng(-25.363882, 131.044922);
+          var image = '';
+          var latlngbounds = new google.maps.LatLngBounds();
+          var evento = false;
+          var events;
+          try {
+              events = JSON.parse(@Html.Raw(Json.Encode(ViewBag.events)));
+              console.log(events);
+              for (var i = 0; i < events.events.event.length; i++) {
+                  var value = events.events.event[i];
+                  if (value.venue.location.geo.lat != '') {
+                      evento = true;
+                      myLatlng = new google.maps.LatLng(value.venue.location.geo.lat, value.venue.location.geo.long);
+                      image = value.image[1].text;
+                      var marker = new google.maps.Marker({
+                          position: myLatlng,
+                          map: map,
+                          title: value.title,
+                          icon: image,
+                          animation: google.maps.Animation.DROP
+
+                      });
+                      var contentString = '<div id="content"><div id="bodyContent"><strong>' + value.startDate + '</strong><br>' + value.description + '<br><br><a href="' + value.url + '" target="_blank" class="btn btn-xs btn-info">More Info</a> <button onClick="getArtistInfo(\'@ViewBag.artist\');" class="btn btn-primary btn-xs" >Artist info</button> </div></div>';
+                      var infowindow = new google.maps.InfoWindow({
+                          content: contentString
+                      });
+
+                      google.maps.event.addListener(marker, 'click', function() {
+                          //window.open('<?php echo $value->url; ?>');
+                          infowindow.open(map, marker);
+                      });
+
+
+                      latlngbounds.extend(myLatlng);
+                  }
+              }
+              map.fitBounds(latlngbounds);
+          } catch (exp) {
+              console.error("Parsing error:", exp);
+          }
+      }
+
+  </script>
+<div class="row row-sm padder-lg ">
+
+<div class="page-header">
+ 	<h1  class="artistInfo" onClick="getArtistInfo('@ViewBag.artist');">Events - @ViewBag.artist</h1>
+ </div> 
+<div class="row">
+	<div class="col-xs-12">
+	 	<div id="map-canvas" style="height:100%;min-height:500px;"></div>
+	</div>
+</div>
+<div class="alert alert-info" style="display:none" id="noevents">
+	<strong>Events!</strong>  No Found!
+</div>
+<script type="text/javascript">
+    initialize();
+    
+    if(!evento)
+    {
+        $("#map-canvas").hide();
+        $("#noevents").show();
+
+    }
+    
+</script>
+</div>
